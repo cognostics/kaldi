@@ -48,7 +48,7 @@ function check_and_download () {
       echo "WARNING: '$fname' exists, but the size is wrong - re-downloading ..."
     fi
   fi
-  wget --no-check-certificate -O $dst_dir/$fname $base_url/$fname || {
+  wget -nv --no-check-certificate -O $dst_dir/$fname $base_url/$fname || {
     echo "Error while trying to download $fname!"
     return 1
   }

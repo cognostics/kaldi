@@ -4,7 +4,7 @@
 # Set this to somewhere where you want to put your data, or where
 # someone else has already put it.  You'll want to change this
 # if you're not on the CLSP grid.
-data=/export/a15/vpanayotov/data
+data=/data/maureen/DeepSpeech27/data
 
 # base url for downloads.
 data_url=www.openslr.org/resources/12
@@ -16,12 +16,12 @@ lm_url=www.openslr.org/resources/11
 # you might not want to do this for interactive shells.
 set -e
 
-# download the data.  Note: we're using the 100 hour setup for
-# now; later in the script we'll download more and use it to train neural
-# nets.
-for part in dev-clean test-clean dev-other test-other train-clean-100; do
-  local/download_and_untar.sh $data $data_url $part
-done
+# # download the data.  Note: we're using the 100 hour setup for
+# # now; later in the script we'll download more and use it to train neural
+# # nets.
+# for part in dev-clean test-clean dev-other test-other train-clean-100; do
+#  local/download_and_untar.sh $data $data_url $part
+# done
 
 # download the LM resources
 local/download_lm.sh $lm_url data/local/lm
@@ -88,16 +88,16 @@ utils/subset_data_dir.sh data/train_clean_100 10000 data/train_10k
 # train a monophone system
 steps/train_mono.sh --boost-silence 1.25 --nj 20 --cmd "$train_cmd" \
   data/train_2kshort data/lang_nosp exp/mono
-
-# decode using the monophone model
-(
-  utils/mkgraph.sh data/lang_nosp_test_tgsmall \
-    exp/mono exp/mono/graph_nosp_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode.sh --nj 20 --cmd "$decode_cmd" exp/mono/graph_nosp_tgsmall \
-      data/$test exp/mono/decode_nosp_tgsmall_$test
-  done
-)&
+ 
+# # decode using the monophone model
+# (
+#   utils/mkgraph.sh data/lang_nosp_test_tgsmall \
+#     exp/mono exp/mono/graph_nosp_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode.sh --nj 20 --cmd "$decode_cmd" exp/mono/graph_nosp_tgsmall \
+#       data/$test exp/mono/decode_nosp_tgsmall_$test
+#   done
+# )&
 
 steps/align_si.sh --boost-silence 1.25 --nj 10 --cmd "$train_cmd" \
   data/train_5k data/lang_nosp exp/mono exp/mono_ali_5k
@@ -105,22 +105,22 @@ steps/align_si.sh --boost-silence 1.25 --nj 10 --cmd "$train_cmd" \
 # train a first delta + delta-delta triphone system on a subset of 5000 utterances
 steps/train_deltas.sh --boost-silence 1.25 --cmd "$train_cmd" \
     2000 10000 data/train_5k data/lang_nosp exp/mono_ali_5k exp/tri1
-
-# decode using the tri1 model
-(
-  utils/mkgraph.sh data/lang_nosp_test_tgsmall \
-    exp/tri1 exp/tri1/graph_nosp_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode.sh --nj 20 --cmd "$decode_cmd" exp/tri1/graph_nosp_tgsmall \
-      data/$test exp/tri1/decode_nosp_tgsmall_$test
-    steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
-      data/$test exp/tri1/decode_nosp_{tgsmall,tgmed}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
-      data/$test exp/tri1/decode_nosp_{tgsmall,tglarge}_$test
-  done
-)&
-
+ 
+# # decode using the tri1 model
+# (
+#   utils/mkgraph.sh data/lang_nosp_test_tgsmall \
+#     exp/tri1 exp/tri1/graph_nosp_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode.sh --nj 20 --cmd "$decode_cmd" exp/tri1/graph_nosp_tgsmall \
+#       data/$test exp/tri1/decode_nosp_tgsmall_$test
+#     steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
+#       data/$test exp/tri1/decode_nosp_{tgsmall,tgmed}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
+#       data/$test exp/tri1/decode_nosp_{tgsmall,tglarge}_$test
+#   done
+# )&
+ 
 steps/align_si.sh --nj 10 --cmd "$train_cmd" \
   data/train_10k data/lang_nosp exp/tri1 exp/tri1_ali_10k
 
@@ -129,21 +129,21 @@ steps/align_si.sh --nj 10 --cmd "$train_cmd" \
 steps/train_lda_mllt.sh --cmd "$train_cmd" \
    --splice-opts "--left-context=3 --right-context=3" 2500 15000 \
    data/train_10k data/lang_nosp exp/tri1_ali_10k exp/tri2b
-
-# decode using the LDA+MLLT model
-(
-  utils/mkgraph.sh data/lang_nosp_test_tgsmall \
-    exp/tri2b exp/tri2b/graph_nosp_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode.sh --nj 20 --cmd "$decode_cmd" exp/tri2b/graph_nosp_tgsmall \
-      data/$test exp/tri2b/decode_nosp_tgsmall_$test
-    steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
-      data/$test exp/tri2b/decode_nosp_{tgsmall,tgmed}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
-      data/$test exp/tri2b/decode_nosp_{tgsmall,tglarge}_$test
-  done
-)&
+ 
+# # decode using the LDA+MLLT model
+# (
+#   utils/mkgraph.sh data/lang_nosp_test_tgsmall \
+#     exp/tri2b exp/tri2b/graph_nosp_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode.sh --nj 20 --cmd "$decode_cmd" exp/tri2b/graph_nosp_tgsmall \
+#       data/$test exp/tri2b/decode_nosp_tgsmall_$test
+#     steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
+#       data/$test exp/tri2b/decode_nosp_{tgsmall,tgmed}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
+#       data/$test exp/tri2b/decode_nosp_{tgsmall,tglarge}_$test
+#   done
+# )&
 
 # Align a 10k utts subset using the tri2b model
 steps/align_si.sh  --nj 10 --cmd "$train_cmd" --use-graphs true \
@@ -153,21 +153,21 @@ steps/align_si.sh  --nj 10 --cmd "$train_cmd" --use-graphs true \
 steps/train_sat.sh --cmd "$train_cmd" 2500 15000 \
   data/train_10k data/lang_nosp exp/tri2b_ali_10k exp/tri3b
 
-# decode using the tri3b model
-(
-  utils/mkgraph.sh data/lang_nosp_test_tgsmall \
-    exp/tri3b exp/tri3b/graph_nosp_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
-      exp/tri3b/graph_nosp_tgsmall data/$test \
-      exp/tri3b/decode_nosp_tgsmall_$test
-    steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
-      data/$test exp/tri3b/decode_nosp_{tgsmall,tgmed}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
-      data/$test exp/tri3b/decode_nosp_{tgsmall,tglarge}_$test
-  done
-)&
+# # decode using the tri3b model
+# (
+#   utils/mkgraph.sh data/lang_nosp_test_tgsmall \
+#     exp/tri3b exp/tri3b/graph_nosp_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
+#       exp/tri3b/graph_nosp_tgsmall data/$test \
+#       exp/tri3b/decode_nosp_tgsmall_$test
+#     steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
+#       data/$test exp/tri3b/decode_nosp_{tgsmall,tgmed}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
+#       data/$test exp/tri3b/decode_nosp_{tgsmall,tglarge}_$test
+#   done
+# )&
 
 # align the entire train_clean_100 subset using the tri3b model
 steps/align_fmllr.sh --nj 20 --cmd "$train_cmd" \
@@ -179,24 +179,24 @@ steps/train_sat.sh  --cmd "$train_cmd" 4200 40000 \
   data/train_clean_100 data/lang_nosp \
   exp/tri3b_ali_clean_100 exp/tri4b
 
-# decode using the tri4b model
-(
-  utils/mkgraph.sh data/lang_nosp_test_tgsmall \
-    exp/tri4b exp/tri4b/graph_nosp_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
-      exp/tri4b/graph_nosp_tgsmall data/$test \
-      exp/tri4b/decode_nosp_tgsmall_$test
-    steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
-      data/$test exp/tri4b/decode_nosp_{tgsmall,tgmed}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
-      data/$test exp/tri4b/decode_nosp_{tgsmall,tglarge}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,fglarge} \
-      data/$test exp/tri4b/decode_nosp_{tgsmall,fglarge}_$test
-  done
-)&
+# # decode using the tri4b model
+# (
+#   utils/mkgraph.sh data/lang_nosp_test_tgsmall \
+#     exp/tri4b exp/tri4b/graph_nosp_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
+#       exp/tri4b/graph_nosp_tgsmall data/$test \
+#       exp/tri4b/decode_nosp_tgsmall_$test
+#     steps/lmrescore.sh --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tgmed} \
+#       data/$test exp/tri4b/decode_nosp_{tgsmall,tgmed}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,tglarge} \
+#       data/$test exp/tri4b/decode_nosp_{tgsmall,tglarge}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_nosp_test_{tgsmall,fglarge} \
+#       data/$test exp/tri4b/decode_nosp_{tgsmall,fglarge}_$test
+#   done
+# )&
 
 # Now we compute the pronunciation and silence probabilities from training data,
 # and re-create the lang directory.
@@ -216,34 +216,34 @@ utils/build_const_arpa_lm.sh \
 utils/build_const_arpa_lm.sh \
   data/local/lm/lm_fglarge.arpa.gz data/lang data/lang_test_fglarge
 
-# decode using the tri4b model with pronunciation and silence probabilities
-(
-  utils/mkgraph.sh \
-    data/lang_test_tgsmall exp/tri4b exp/tri4b/graph_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
-      exp/tri4b/graph_tgsmall data/$test \
-      exp/tri4b/decode_tgsmall_$test
-    steps/lmrescore.sh --cmd "$decode_cmd" data/lang_test_{tgsmall,tgmed} \
-      data/$test exp/tri4b/decode_{tgsmall,tgmed}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_test_{tgsmall,tglarge} \
-      data/$test exp/tri4b/decode_{tgsmall,tglarge}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_test_{tgsmall,fglarge} \
-      data/$test exp/tri4b/decode_{tgsmall,fglarge}_$test
-  done
-)&
+# # decode using the tri4b model with pronunciation and silence probabilities
+# (
+#   utils/mkgraph.sh \
+#     data/lang_test_tgsmall exp/tri4b exp/tri4b/graph_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
+#       exp/tri4b/graph_tgsmall data/$test \
+#       exp/tri4b/decode_tgsmall_$test
+#     steps/lmrescore.sh --cmd "$decode_cmd" data/lang_test_{tgsmall,tgmed} \
+#       data/$test exp/tri4b/decode_{tgsmall,tgmed}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_test_{tgsmall,tglarge} \
+#       data/$test exp/tri4b/decode_{tgsmall,tglarge}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_test_{tgsmall,fglarge} \
+#       data/$test exp/tri4b/decode_{tgsmall,fglarge}_$test
+#   done
+# )&
+# 
+# # align train_clean_100 using the tri4b model
+# steps/align_fmllr.sh --nj 30 --cmd "$train_cmd" \
+#   data/train_clean_100 data/lang exp/tri4b exp/tri4b_ali_clean_100
+# 
+# # if you want at this point you can train and test NN model(s) on the 100 hour
+# # subset
+# local/nnet2/run_5a_clean_100.sh
 
-# align train_clean_100 using the tri4b model
-steps/align_fmllr.sh --nj 30 --cmd "$train_cmd" \
-  data/train_clean_100 data/lang exp/tri4b exp/tri4b_ali_clean_100
-
-# if you want at this point you can train and test NN model(s) on the 100 hour
-# subset
-local/nnet2/run_5a_clean_100.sh
-
-local/download_and_untar.sh $data $data_url train-clean-360
+# local/download_and_untar.sh $data $data_url train-clean-360
 
 # now add the "clean-360" subset to the mix ...
 local/data_prep.sh \
@@ -265,29 +265,29 @@ steps/align_fmllr.sh --nj 40 --cmd "$train_cmd" \
 steps/train_sat.sh  --cmd "$train_cmd" 5000 100000 \
   data/train_clean_460 data/lang exp/tri4b_ali_clean_460 exp/tri5b
 
-# decode using the tri5b model
-(
-  utils/mkgraph.sh data/lang_test_tgsmall \
-    exp/tri5b exp/tri5b/graph_tgsmall
-  for test in test_clean test_other dev_clean dev_other; do
-    steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
-      exp/tri5b/graph_tgsmall data/$test \
-      exp/tri5b/decode_tgsmall_$test
-    steps/lmrescore.sh --cmd "$decode_cmd" data/lang_test_{tgsmall,tgmed} \
-      data/$test exp/tri5b/decode_{tgsmall,tgmed}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_test_{tgsmall,tglarge} \
-      data/$test exp/tri5b/decode_{tgsmall,tglarge}_$test
-    steps/lmrescore_const_arpa.sh \
-      --cmd "$decode_cmd" data/lang_test_{tgsmall,fglarge} \
-      data/$test exp/tri5b/decode_{tgsmall,fglarge}_$test
-  done
-)&
+# # decode using the tri5b model
+# (
+#   utils/mkgraph.sh data/lang_test_tgsmall \
+#     exp/tri5b exp/tri5b/graph_tgsmall
+#   for test in test_clean test_other dev_clean dev_other; do
+#     steps/decode_fmllr.sh --nj 20 --cmd "$decode_cmd" \
+#       exp/tri5b/graph_tgsmall data/$test \
+#       exp/tri5b/decode_tgsmall_$test
+#     steps/lmrescore.sh --cmd "$decode_cmd" data/lang_test_{tgsmall,tgmed} \
+#       data/$test exp/tri5b/decode_{tgsmall,tgmed}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_test_{tgsmall,tglarge} \
+#       data/$test exp/tri5b/decode_{tgsmall,tglarge}_$test
+#     steps/lmrescore_const_arpa.sh \
+#       --cmd "$decode_cmd" data/lang_test_{tgsmall,fglarge} \
+#       data/$test exp/tri5b/decode_{tgsmall,fglarge}_$test
+#   done
+# )&
+# 
+# # train a NN model on the 460 hour set
+# local/nnet2/run_6a_clean_460.sh
 
-# train a NN model on the 460 hour set
-local/nnet2/run_6a_clean_460.sh
-
-local/download_and_untar.sh $data $data_url train-other-500
+# local/download_and_untar.sh $data $data_url train-other-500
 
 # prepare the 500 hour subset.
 local/data_prep.sh \
@@ -331,8 +331,8 @@ steps/train_quick.sh --cmd "$train_cmd" \
 # the neural net and chain systems.
 local/run_cleanup_segmentation.sh
 
-# steps/cleanup/debug_lexicon.sh --remove-stress true  --nj 200 --cmd "$train_cmd" data/train_clean_100 \
-#    data/lang exp/tri6b data/local/dict/lexicon.txt exp/debug_lexicon_100h
+steps/cleanup/debug_lexicon.sh --remove-stress true  --nj 200 --cmd "$train_cmd" data/train_clean_100 \
+   data/lang exp/tri6b data/local/dict/lexicon.txt exp/debug_lexicon_100h
 
 # #Perform rescoring of tri6b be means of faster-rnnlm
 # #Attention: with default settings requires 4 GB of memory per rescoring job, so commenting this out by default
@@ -341,15 +341,15 @@ local/run_cleanup_segmentation.sh
 #     --rnnlm-options "-hidden 150 -direct 1000 -direct-order 5" \
 #     --rnnlm-tag "h150-me5-1000" $data data/local/lm
 
-# #Perform rescoring of tri6b be means of faster-rnnlm using Noise contrastive estimation
-# #Note, that could be extremely slow without CUDA
-# #We use smaller direct layer size so that it could be stored in GPU memory (~2Gb)
-# #Suprisingly, bottleneck here is validation rather then learning
-# #Therefore you can use smaller validation dataset to speed up training
-# wait && local/run_rnnlm.sh \
-#     --rnnlm-ver "faster-rnnlm" \
-#     --rnnlm-options "-hidden 150 -direct 400 -direct-order 3 --nce 20" \
-#     --rnnlm-tag "h150-me3-400-nce20" $data data/local/lm
+#Perform rescoring of tri6b be means of faster-rnnlm using Noise contrastive estimation
+#Note, that could be extremely slow without CUDA
+#We use smaller direct layer size so that it could be stored in GPU memory (~2Gb)
+#Suprisingly, bottleneck here is validation rather then learning
+#Therefore you can use smaller validation dataset to speed up training
+wait && local/run_rnnlm.sh \
+    --rnnlm-ver "faster-rnnlm" \
+    --rnnlm-options "-hidden 150 -direct 400 -direct-order 3 --nce 20" \
+    --rnnlm-tag "h150-me3-400-nce20" $data data/local/lm
 
 
 # train nnet3 tdnn models on the entire data with data-cleaning (xent and chain)

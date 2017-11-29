@@ -4,54 +4,57 @@
 #           2016  Johns Hopkins University (author: Daniel Povey)
 # Apache 2.0
 
+# pylint: disable=W,C,R
+# flake8: noqa
+
 from __future__ import print_function
 import argparse
 from random import randint
 import sys
-import os
 from collections import defaultdict
 
 
 parser = argparse.ArgumentParser(description="""
-This script, called from data/utils/combine_short_segments.sh, chooses consecutive
-utterances to concatenate that will satisfy the minimum segment length.  It uses the
---spk2utt file to ensure that utterances from the same speaker are preferentially
-combined (as far as possible while respecting the minimum segment length).
-If it has to combine utterances across different speakers in order to satisfy the
-duration constraint, it will assign the combined utterances to the speaker which
-contributed the most to the duration of the combined utterances.
+This script, called from data/utils/combine_short_segments.sh, chooses
+consecutive utterances to concatenate that will satisfy the minimum
+segment length.  It uses the --spk2utt file to ensure that utterances
+from the same speaker are preferentially combined (as far as possible
+while respecting the minimum segment length). If it has to combine utterances
+across different speakers in order to satisfy the duration constraint, it will
+assign the combined utterances to the speaker which contributed the most to the
+duration of the combined utterances.
 
 
 The utt2uts output of this program is a map from new
 utterance-id to a list of old utterance-ids, so for example if the inputs were
-utt1, utt2 and utt3, and utterances 2 and 3 were combined, the output might look
-like:
+utt1, utt2 and utt3, and utterances 2 and 3 were combined, the output might
+look like:
 utt1 utt1
 utt2-combine2 utt2 utt3
-The utt2spk output of this program assigns utterances to the speakers of the input;
-in the (hopefully rare) case where utterances were combined across speakers, it
-will assign the utterance to whichever of the original speakers contributed the most
-to the grouped utterance.
+The utt2spk output of this program assigns utterances to the speakers of the
+input; in the (hopefully rare) case where utterances were combined across
+speakers, it will assign the utterance to whichever of the original speakers
+contributed the most to the grouped utterance.
 """)
 
 
-parser.add_argument("--min-duration", type = float, default = 1.55,
+parser.add_argument("--min-duration", type=float, default=1.55,
                     help="Minimum utterance duration")
-parser.add_argument("spk2utt_in", type = str, metavar = "<spk2utt-in>",
+parser.add_argument("spk2utt_in", type=str, metavar="<spk2utt-in>",
                     help="Filename of [input] speaker to utterance map needed "
                     "because this script tries to merge utterances from the "
                     "same speaker as much as possible, and also needs to produce"
                     "an output utt2spk map.")
-parser.add_argument("utt2dur_in", type = str, metavar = "<utt2dur-in>",
+parser.add_argument("utt2dur_in", type=str, metavar="<utt2dur-in>",
                     help="Filename of [input] utterance-to-duration map, with lines like 'utt1 1.23'.")
-parser.add_argument("utt2utts_out", type = str, metavar = "<utt2utts-out>",
+parser.add_argument("utt2utts_out", type=str, metavar="<utt2utts-out>",
                     help="Filename of [output] new-utterance-to-old-utterances map, with lines "
                     "like 'utt1 utt1' or 'utt2-comb2 utt2 utt3'")
-parser.add_argument("utt2spk_out", type = str, metavar = "<utt2spk-out>",
+parser.add_argument("utt2spk_out", type=str, metavar="<utt2spk-out>",
                     help="Filename of [output] utt2spk map, which maps new utterances to original "
                     "speakers.  If utterances were combined across speakers, we map the new "
                     "utterance to the speaker that contributed the most to them.")
-parser.add_argument("utt2dur_out", type = str, metavar = "<utt2spk-out>",
+parser.add_argument("utt2dur_out", type=str, metavar="<utt2spk-out>",
                     help="Filename of [output] utt2dur map, which is just the summations of "
                     "the durations of the source utterances.")
 
@@ -89,7 +92,7 @@ def CombineList(min_duration, durations):
     # for each utterance-index i, group_start[i] gives us the
     # start-index of the group of utterances of which it's currently
     # a member.
-    group_start = range(num_utts)
+    group_start = list(range(num_utts))
     # if utterance-index i currently corresponds to the start of a group
     # of utterances, then group_durations[i] is the total duration of
     # that utterance-group, otherwise undefined.
@@ -381,4 +384,3 @@ try:
 except Exception as e:
     sys.exit("choose_utts_to_combine.py: exception writing to "
              "<utt2dur-out>={0}: {1}".format(args.utt2dur_out, str(e)))
-

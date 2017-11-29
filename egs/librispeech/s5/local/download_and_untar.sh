@@ -76,8 +76,8 @@ if [ ! -f $data/$part.tar.gz ]; then
   echo "$0: downloading data from $full_url.  This may take some time, please be patient."
 
   cd $data
-  if ! wget --no-check-certificate $full_url; then
-    echo "$0: error executing wget $full_url"
+  if ! wget -nv --no-check-certificate $full_url; then
+    echo "$0: error executing wget -nv $full_url"
     exit 1;
   fi
 fi

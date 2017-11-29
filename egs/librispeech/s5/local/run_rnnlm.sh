@@ -6,7 +6,7 @@
 # Begin configuration section.
 rnnlm_options="-hidden 150 -direct 1000 -direct-order 5"
 rnnlm_tag="h150_me5-1000"
-num_threads=8 # set this value to the number of physical cores on your CPU
+num_threads=32 # set this value to the number of physical cores on your CPU
 stage=0
 rnnlm_ver=faster-rnnlm
 # End configuration section.

@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; #sed replacement for -w perl parameter
+        use warnings; #sed replacement for -w perl parameter
 
 # In general, doing
 #  run.pl some.log a b c is like running the command a b c in
@@ -26,7 +26,7 @@ use warnings; #sed replacement for -w perl parameter
 @ARGV < 2 && die "usage: run.pl log-file command-line arguments...";
 
 
-$max_jobs_run = -1;
+$max_jobs_run = 20;
 $jobstart = 1;
 $jobend = 1;
 $ignored_opts = ""; # These will be ignored.

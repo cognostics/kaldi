@@ -1,7 +1,11 @@
 # SHELL += -x
 
-CXX = g++
-CC = gcc         # used for sph2pipe
+CXX = /home/maureen/Documents/train-env/bin/g++
+CC = /home/maureen/Documents/train-env/bin/gcc
+CXXFLAGS = -L/home/maureen/Documents/train-env/lib64
+
+# CXX = /home/maureen/Documents/train-env/gcc-4.9.4/bin/g++
+# CC = /home/maureen/Documents/train-env/gcc-4.9.4/bin/gcc         # used for sph2pipe
 # CXX = clang++  # Uncomment these lines
 # CC = clang     # to build with Clang.
 

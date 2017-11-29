@@ -52,8 +52,8 @@ nnet3_affix=_cleaned  # cleanup affix for nnet3 and chain dirs, e.g. _cleaned
 # are just hardcoded at this level, in the commands below.
 affix=1b
 tree_affix=
-train_stage=-10
-get_egs_stage=-10
+train_stage=0 # start from the training! 
+get_egs_stage=10 # already done!
 decode_iter=
 
 # TDNN options
@@ -191,8 +191,8 @@ if [ $stage -le 15 ]; then
     --trainer.num-chunk-per-minibatch 128 \
     --trainer.frames-per-iter 1500000 \
     --trainer.num-epochs 4 \
-    --trainer.optimization.num-jobs-initial 3 \
-    --trainer.optimization.num-jobs-final 16 \
+    --trainer.optimization.num-jobs-initial 2 \
+    --trainer.optimization.num-jobs-final 2 \
     --trainer.optimization.initial-effective-lrate 0.001 \
     --trainer.optimization.final-effective-lrate 0.0001 \
     --trainer.max-param-change 2 \

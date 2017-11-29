@@ -30,7 +30,7 @@ endif
 
 # Implicit rule for kernel compilation,
 %.o : %.cu
-	$(CUDATKDIR)/bin/nvcc -c $< -o $@ $(CUDA_INCLUDE) $(CUDA_FLAGS) $(CUDA_ARCH) -I../
+	$(CUDATKDIR)/bin/nvcc -I../ -c $< -o $@ $(CUDA_INCLUDE) $(CUDA_FLAGS) $(CUDA_ARCH)
 
 include ../makefiles/default_rules.mk
 
