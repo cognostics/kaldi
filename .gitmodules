@@ -1,0 +1,3 @@
+[submodule "egs/video_transcripts/s5/lm_build"]
+	path = egs/video_transcripts/s5/lm_build
+	url = https://github.com/srvk/lm_build
