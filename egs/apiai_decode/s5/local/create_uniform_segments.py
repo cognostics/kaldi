@@ -1,0 +1,1 @@
+/data/maureen/kaldi/egs/aspire/s5/local/multi_condition/create_uniform_segments.py

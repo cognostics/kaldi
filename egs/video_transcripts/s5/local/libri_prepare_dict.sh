@@ -1,0 +1,1 @@
+/data/maureen/kaldi/egs/librispeech/s5/local/prepare_dict.sh

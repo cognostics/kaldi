@@ -350,6 +350,8 @@ def train(args, run_opts):
                                right_context_final >= 0 else -1)
 
     default_egs_dir = '{0}/egs'.format(args.dir)
+    # args.stage = -3
+    # args.egs_stage = 5
     if ((args.stage <= -3) and args.egs_dir is None):
         logger.info("Generating egs")
         if (not os.path.exists("{0}/den.fst".format(args.dir)) or

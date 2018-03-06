@@ -17,11 +17,13 @@ def segment(total_length, window_length, overlap = 0):
   return segments
 
 def get_wave_segments(wav_command, window_length, overlap):
-  raw_output = subprocess.check_output(wav_command+" sox -t wav - -n stat 2>&1 | grep Length ", shell = True)
-  parts = raw_output.split(":")
-  if parts[0].strip() != "Length (seconds)":
-    raise Exception("Failed while processing file ", wav_command)
-  total_length = float(parts[1])
+#  raw_output = subprocess.check_output(wav_command+" sox -t wav - -n stat 2>&1 | grep Length ", shell = True)
+#  parts = raw_output.split(":")
+#  if parts[0].strip() != "Length (seconds)":
+#    raise Exception("Failed while processing file ", wav_command)
+#  total_length = float(parts[1])
+  total_length = subprocess.check_output("soxi -D {}".format(wav_command),
+                                         shell=True)
   segments = segment(total_length, window_length, overlap)
   return segments
 
@@ -63,17 +65,14 @@ if __name__ == "__main__":
   segments_file.write("\n".join(segments))
   segments_file.close()
 
-  utt2spk_file = open(params.data_dir + "/utt2spk", "w")
-  spk2utt_file = open(params.data_dir + "/spk2utt", "w")
-  # write the utt2spk file
-  # assumes the recording id is the speaker ir
-  for i in range(len(segments_per_recording)):
-    segments = segments_per_recording[i][1]
-    recording = segments_per_recording[i][0]
-    spk2utt_file.write("{0} {1}\n".format(recording, " ".join(segments)))
-    for segment in segments:
-      utt2spk_file.write("{0} {1}\n".format(segment, recording))
-
-  spk2utt_file.close()
-  utt2spk_file.close()
-
+#   spk2utt_file = open(params.data_dir + "/spk2utt", "w")
+#   # write the utt2spk file
+#   # assumes the recording id is the speaker ir
+#   for i in range(len(segments_per_recording)):
+#     segments = segments_per_recording[i][1]
+#     recording = segments_per_recording[i][0]
+#     spk2utt_file.write(u"{0} {1}\n".format(recording, " ".join(segments)))
+# #    for segment in segments:
+# #      utt2spk_file.write("{0} {1}\n".format(segment, recording))
+# 
+#   spk2utt_file.close()

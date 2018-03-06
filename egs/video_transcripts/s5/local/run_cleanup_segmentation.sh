@@ -1,0 +1,1 @@
+/data/maureen/kaldi/egs/librispeech/s5/local/run_cleanup_segmentation.sh

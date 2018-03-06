@@ -42,7 +42,7 @@ set -e
 # First the options that are passed through to run_ivector_common.sh
 # (some of which are also used in this script directly).
 stage=0
-decode_nj=50
+decode_nj=20
 min_seg_len=1.55
 train_set=train_960_cleaned
 gmm=tri6b_cleaned # the gmm for the target data
@@ -190,7 +190,7 @@ if [ $stage -le 15 ]; then
     --egs.dir "$common_egs_dir" \
     --trainer.num-chunk-per-minibatch 128 \
     --trainer.frames-per-iter 1500000 \
-    --trainer.num-epochs 4 \
+    --trainer.num-epochs 8 \
     --trainer.optimization.num-jobs-initial 2 \
     --trainer.optimization.num-jobs-final 2 \
     --trainer.optimization.initial-effective-lrate 0.001 \
@@ -223,7 +223,7 @@ if [ $stage -le 17 ]; then
     iter_opts=" --iter $decode_iter "
   fi
   rm $dir/.error 2>/dev/null || true
-  for decode_set in test_clean test_other dev_clean dev_other; do
+  for decode_set in libri_test_clean libri_test_other libri_dev_clean libri_dev_other ted_dev ted_test; do
       (
       steps/nnet3/decode.sh --acwt 1.0 --post-decode-acwt 10.0 \
           --nj $decode_nj --cmd "$decode_cmd" $iter_opts \

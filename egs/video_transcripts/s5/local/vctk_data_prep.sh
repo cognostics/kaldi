@@ -33,13 +33,12 @@ utt2dur=$dst/utt2dur; [[ -f "$utt2dur" ]] && rm "$utt2dur"
 
 
 while IFS=$'\n' read -r line; do
-        echo "$line"
         reader=$(awk <<< "$line" '{ print $1 }')
         [ "$reader" = "ID" ] && continue  # skip the first line
         [ "$reader" -eq 315 ] && continue  # speaker 315 has no transcripts..
         # change the gender to lowercase
         gender=$(awk <<< "$line" '{ print $3 }' | tr '(A-Z)' '(a-z)')
-        echo "$reader $gender" >> "$spk2gender"
+        echo "p$reader $gender" >> "$spk2gender"
 
         mkdir -p "$src/wav16/p$reader"
         
@@ -70,7 +69,7 @@ while IFS=$'\n' read -r line; do
                 # create all the remaining data files
                 echo "$uttid $text" >> "$trans"
                 echo "$uttid $wav_o" >> "$wav_scp"
-                echo "$uttid $reader" >> "$utt2spk"
+                echo "$uttid p$reader" >> "$utt2spk"
         done
 done < "$spk_file"
 

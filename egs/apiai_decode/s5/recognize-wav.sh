@@ -13,7 +13,7 @@
 
 . ./path.sh
 MODEL_DIR="exp/api.ai-model"
-DATA_DIR="data/test-corpus"
+DATA_DIR="../../video_transcripts/s5/data/lectures"
 
 echo "///////"
 echo "// IMPORTANT: wav files must be in 16kHz, 16 bit little-endian format."
@@ -30,7 +30,7 @@ for app in nnet3-latgen-faster apply-cmvn lattice-scale; do
   command -v $app >/dev/null 2>&1 || { echo >&2 "$app not found, is kaldi compiled?"; exit 1; }
 done;
 
-local/create-corpus.sh $DATA_DIR $@ || exit 1;
+local/create-corpus.sh $DATA_DIR "$@" || exit 1;
 
 echo "///////"
 echo "// Computing mfcc and cmvn (cmvn is not really used)"

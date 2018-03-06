@@ -10,6 +10,7 @@
 . ./path.sh
 
 export LC_ALL=C
+data_dir=/data/speech_recognition_data/TEDLIUM_release2
 
 # Prepare: test, train,
 for set in dev test train; do
@@ -32,7 +33,7 @@ for set in dev test train; do
 ;; LABEL "female" "Female" "Female Talkers"
 ;;'
     # Process the STMs
-    cat db/TEDLIUM_release2/$set/stm/*.stm | sort -k1,1 -k2,2 -k4,4n | \
+    cat $data_dir/$set/stm/*.stm | sort -k1,1 -k2,2 -k4,4n | \
       sed -e 's:<F0_M>:<o,f0,male>:' \
           -e 's:<F0_F>:<o,f0,female>:' \
           -e 's:([0-9])::g' \
@@ -45,7 +46,7 @@ for set in dev test train; do
   # - {NOISE} -> [NOISE] : map the tags to match symbols in dictionary
   cat $dir/stm | grep -v -e 'ignore_time_segment_in_scoring' -e ';;' | \
     awk '{ printf ("%s-%07d-%07d", $1, $4*100, $5*100);
-           for (i=7;i<=NF;i++) { printf(" %s", $i); }
+        for (i=7;i<=NF;i++) { printf(" %s", toupper($i)); }
            printf("\n");
          }' | tr '{}' '[]' | sort -k1,1 > $dir/text || exit 1
 
@@ -55,7 +56,7 @@ for set in dev test train; do
   cat $dir/utt2spk | utils/utt2spk_to_spk2utt.pl > $dir/spk2utt
 
   # Prepare 'wav.scp', 'reco2file_and_channel'
-  cat $dir/spk2utt | awk -v set=$set -v pwd=$PWD '{ printf("%s sph2pipe -f wav -p %s/db/TEDLIUM_release2/%s/sph/%s.sph |\n", $1, pwd, set, $1); }' > $dir/wav.scp
+  cat $dir/spk2utt | awk -v set=$set -v data_dir=$data_dir '{ printf("%s sph2pipe -f wav -p %s/%s/sph/%s.sph |\n", $1, data_dir, set, $1); }' > $dir/wav.scp
   cat $dir/wav.scp | awk '{ print $1, $1, "A"; }' > $dir/reco2file_and_channel
 
   # Create empty 'glm' file
